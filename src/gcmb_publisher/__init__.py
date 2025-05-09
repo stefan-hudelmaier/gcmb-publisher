@@ -90,6 +90,9 @@ class MqttPublisher:
         while True:
             time.sleep(60)
             now = time.time()
+            last_successful_message_str = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(self.last_successful_message)) if self.last_successful_message else "None"
+            logger.info(f"Watchdog checking for inactivity: Last successful message was at {last_successful_message_str}")
+
             if self.last_successful_message is not None and now - self.last_successful_message > self.watchdog_minutes * 60:
                 logger.error(f"No messages sent in last {self.watchdog_minutes} minutes, restarting")
                 # sys.exit would not work in a thread
