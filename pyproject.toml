@@ -7,7 +7,9 @@ authors = [
     { name = "Stefan Hudelmaier", email = "stefan@huditech.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "paho-mqtt>=2.1.0",
+]
 
 [build-system]
 requires = ["hatchling"]
