@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Stefan Hudelmaier", email = "stefan.hudelmaier@device-insight.com" }
+    { name = "Stefan Hudelmaier", email = "stefan@huditech.com" }
 ]
 requires-python = ">=3.12"
 dependencies = []
