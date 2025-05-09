@@ -5,9 +5,7 @@ import time
 from threading import Thread
 
 import paho.mqtt.client as mqtt
-from dotenv import load_dotenv
 
-load_dotenv()
 logger = logging.getLogger()
 
 broker = os.environ.get('MQTT_HOST', 'gcmb.io')
