@@ -1,0 +1,14 @@
+[project]
+name = "gcmb-publisher"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Stefan Hudelmaier", email = "stefan.hudelmaier@device-insight.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
