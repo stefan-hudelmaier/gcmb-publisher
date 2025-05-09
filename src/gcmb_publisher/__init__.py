@@ -17,12 +17,13 @@ client_id = os.environ.get('MQTT_CLIENT_ID', f'{username}/pub')
 
 class MqttPublisher:
 
-    def __init__(self, enable_watchdog=False):
+    def __init__(self, enable_watchdog=False, watchdog_minutes=10):
 
         self.mqtt_client = self._connect_mqtt()
         self.msg_queue = queue.Queue(maxsize=100000)
         self.start_time = time.time()
         self.last_successful_message = None
+        self.watchdog_minutes = watchdog_minutes
 
         mqtt_publish_locations_thread = Thread(target=self._publish_msg_queue_messages, args=())
         mqtt_publish_locations_thread.start()
@@ -88,12 +89,12 @@ class MqttPublisher:
     def _watchdog(self):
         while True:
             time.sleep(60)
-            if self.last_successful_message is not None and time.time() - self.last_successful_message > 10 * 60:
-                logger.error("No messages sent in the 10 minutes, restarting")
+            now = time.time()
+            if self.last_successful_message is not None and now - self.last_successful_message > self.watchdog_minutes * 60:
+                logger.error(f"No messages sent in last {self.watchdog_minutes} minutes, restarting")
                 # sys.exit would not work in a thread
                 os._exit(1)
 
-            if self.last_successful_message is not None and time.time() - self.last_successful_message > 10 * 60:
-                logger.error("No messages sent in the 10 minutes, restarting")
-                # sys.exit would not work in a thread
+            if self.last_successful_message is None and now - self.start_time > self.watchdog_minutes * 60:
+                logger.error(f"No message has been sent yet and service is already running for {self.watchdog_minutes} minutes, restarting")
                 os._exit(1)
