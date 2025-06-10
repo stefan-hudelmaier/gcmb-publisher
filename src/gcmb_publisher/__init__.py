@@ -10,8 +10,8 @@ logger = logging.getLogger()
 
 broker = os.environ.get('MQTT_HOST', 'gcmb.io')
 port = 8883
-username = os.environ['MQTT_USERNAME']
-password = os.environ['MQTT_PASSWORD']
+username = os.environ.get('MQTT_USERNAME')
+password = os.environ.get('MQTT_PASSWORD')
 client_id = os.environ.get('MQTT_CLIENT_ID', f'{username}/pub')
 
 
@@ -40,6 +40,11 @@ class MqttPublisher:
 
     @staticmethod
     def _connect_mqtt():
+
+        if not username or not password:
+            logger.error("MQTT username or password not set, cannot connect to MQTT Broker")
+            raise ValueError("MQTT username or password not set")
+
         def on_connect(client, userdata, flags, rc, properties):
             if rc == 0:
                 logger.info("Connected to MQTT Broker")
