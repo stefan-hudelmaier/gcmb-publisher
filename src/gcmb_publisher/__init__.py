@@ -75,15 +75,16 @@ class MqttPublisher:
 
     def _publish_msg_queue_messages(self):
         while True:
+
+            msg, topic, retain = self.msg_queue.get()
             try:
-                msg, topic, retain = self.msg_queue.get()
 
                 successful_publish = self._publish(topic, msg, retain)
                 if successful_publish:
                     self.last_successful_message = time.time()
 
-            except Exception as e:
-                logger.error(f"Exception publishing message", exc_info=True)
+            except Exception:
+                logger.error(f"Exception publishing message to topic {topic}", exc_info=True)
 
 
     def send_msg(self, msg, topic, retain=False):
