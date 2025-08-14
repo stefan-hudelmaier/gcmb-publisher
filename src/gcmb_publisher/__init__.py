@@ -5,6 +5,8 @@ import time
 from threading import Thread
 
 import paho.mqtt.client as mqtt
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.properties import Properties
 
 logger = logging.getLogger()
 
@@ -61,12 +63,22 @@ class MqttPublisher:
         mqtt_client.connect(broker, port)
         return mqtt_client
 
+    @staticmethod
+    def _create_publish_properties(message_expiry_interval):
+        if message_expiry_interval is None:
+            return None
 
-    def _publish(self, topic, msg, retain):
-        result = self.mqtt_client.publish(topic, msg, retain=retain)
+        publish_properties = Properties(PacketTypes.PUBLISH)
+        publish_properties.MessageExpiryInterval = message_expiry_interval
+        return publish_properties
+
+
+    def _publish(self, topic, msg, retain, message_expiry_interval=None):
+        publish_properties = self._create_publish_properties(message_expiry_interval)
+        result = self.mqtt_client.publish(topic, msg, retain=retain, properties=publish_properties)
         status = result.rc
         if status == 0:
-            logger.debug(f"Sent '{msg}' to topic {topic} with id {result.mid}, retain {retain}. is_published: {result.is_published()}")
+            logger.debug(f"Sent '{msg}' to topic {topic} with id {result.mid}, retain {retain}, message expiry: {message_expiry_interval}. is_published: {result.is_published()}")
             return True
         else:
             logger.debug(f"Failed to send message to topic {topic}, reason: {status}")
@@ -76,7 +88,7 @@ class MqttPublisher:
     def _publish_msg_queue_messages(self):
         while True:
 
-            msg, topic, retain = self.msg_queue.get()
+            msg, topic, retain, message_expiry_interval = self.msg_queue.get()
             try:
 
                 successful_publish = self._publish(topic, msg, retain)
@@ -87,8 +99,8 @@ class MqttPublisher:
                 logger.error(f"Exception publishing message to topic {topic}", exc_info=True)
 
 
-    def send_msg(self, msg, topic, retain=False):
-        self.msg_queue.put((msg, topic, retain,))
+    def send_msg(self, msg, topic, retain=False, message_expiry_interval=None):
+        self.msg_queue.put((msg, topic, retain, message_expiry_interval, ))
         logger.debug(f"Message queued: {msg}")
 
 
