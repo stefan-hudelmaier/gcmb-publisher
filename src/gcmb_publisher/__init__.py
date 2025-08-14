@@ -91,7 +91,7 @@ class MqttPublisher:
             msg, topic, retain, message_expiry_interval = self.msg_queue.get()
             try:
 
-                successful_publish = self._publish(topic, msg, retain)
+                successful_publish = self._publish(topic, msg, retain, message_expiry_interval)
                 if successful_publish:
                     self.last_successful_message = time.time()
 
