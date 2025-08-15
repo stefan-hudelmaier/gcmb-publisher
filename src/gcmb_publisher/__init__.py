@@ -53,11 +53,16 @@ class MqttPublisher:
             else:
                 logger.error(f"Failed to connect, return code {rc}")
 
+        def on_log(client, userdata, level, buf):
+            logger.debug(f"PAHO: {buf}")
+
         mqtt_client = mqtt.Client(client_id=client_id,
-                                  callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
+                                  callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
+                                  protocol=mqtt.MQTTv5)
         mqtt_client.tls_set(ca_certs='/etc/ssl/certs/ca-certificates.crt')
         mqtt_client.username_pw_set(username, password)
         mqtt_client.on_connect = on_connect
+        mqtt_client.on_log = on_log
         mqtt_client.on_disconnect = lambda client, userdata, disconnect_flags, reason_code, properties: logger.warning(
             f"Disconnected from MQTT Broker, return code {reason_code}")
         mqtt_client.connect(broker, port)
